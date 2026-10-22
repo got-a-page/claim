@@ -1,1 +1,6 @@
-{"mode":"instant","owner":{"github":"SMUGSterling"},"page":{"type":"person","title":"Levi","tagline":"Academic technology at the intersection of education and game development","avatar":"https://github.com/SMUGSterling.png","theme":"slate","links":[{"label":"GitHub","url":"https://github.com/SMUGSterling"},{"label":"SMU Guildhall","url":"https://www.smu.edu/guildhall"}],"sections":[{"heading":"About","text":"Senior Academic Technology Service Director at SMU Guildhall. I work on the tools, infrastructure, and practices that support teaching and learning in game development. Views here are my own."}]}}
+{
+  "mode": "point",
+  "owner": { "github": "SMUGSterling" },
+  "purpose": "Personal page for Levi Sterling, hosted on GitHub Pages",
+  "records": { "CNAME": "smugsterling.github.io" }
+}
