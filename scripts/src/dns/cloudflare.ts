@@ -5,7 +5,7 @@
  */
 
 import type { DnsProvider, DnsRecord, RecordType } from "./provider.js";
-import { MANAGED_TAG } from "./provider.js";
+import { parseRecordTag, recordTag } from "./provider.js";
 
 const API = "https://api.cloudflare.com/client/v4";
 
@@ -59,7 +59,7 @@ export class CloudflareProvider implements DnsProvider {
           type: r.type as RecordType,
           content: r.content,
           ttl: r.ttl,
-          managed: r.comment === MANAGED_TAG,
+          ...parseRecordTag(r.name, r.type, r.comment),
         });
       }
       if (result.length < 100) return out;
@@ -75,7 +75,7 @@ export class CloudflareProvider implements DnsProvider {
         type: record.type,
         content: record.content,
         ttl: record.ttl,
-        comment: MANAGED_TAG,
+        comment: recordTag(record),
         proxied: false,
       }),
     });
@@ -87,7 +87,7 @@ export class CloudflareProvider implements DnsProvider {
       body: JSON.stringify({
         content: record.content,
         ttl: record.ttl,
-        comment: MANAGED_TAG,
+        comment: recordTag(record),
       }),
     });
   }

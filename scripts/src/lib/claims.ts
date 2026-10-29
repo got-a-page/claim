@@ -49,6 +49,17 @@ export function checkClaim(name: string, claim: PageClaim, limits: Limits): Rule
     }
   }
 
+  if (claim.verification) {
+    if (claim.mode !== "point") errors.push("Verification is only supported for point claims.");
+    const prefix = `vc-domain-verify=${name}.got-a.page,`;
+    const value = claim.verification.vercel;
+    if (typeof value !== "string" || !value.startsWith(prefix) ||
+        !/^[a-zA-Z0-9_-]{1,200}$/.test(value.slice(prefix.length))) {
+      errors.push(`Vercel verification must be the exact vc-domain-verify=${name}.got-a.page,<token> value for this claim. Apex, wildcard and other-domain values are not allowed.`);
+    }
+    warnings.push("Vercel verification changes require maintainer review of the exact Domains record before merge. This publishes TXT at the shared _vercel.got-a.page label.");
+  }
+
   if (claim.mode === "instant") {
     const page = claim.page;
     if (!page) {
@@ -88,7 +99,8 @@ export function recordCount(claim: PageClaim): number {
     (r.CNAME !== undefined ? 1 : 0) +
     (r.A?.length ?? 0) +
     (r.AAAA?.length ?? 0) +
-    (r.TXT?.length ?? 0)
+    (r.TXT?.length ?? 0) +
+    (claim.verification?.vercel ? 1 : 0)
   );
 }
 

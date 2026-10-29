@@ -50,6 +50,21 @@
         "TXT": { "type": "array", "items": { "type": "string", "maxLength": 512 }, "minItems": 1, "maxItems": 8 }
       }
     },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vercel"
+      ],
+      "description": "Point mode only. Exact claim-bound Vercel verification value. Maintainer review required; published at _vercel.got-a.page.",
+      "properties": {
+        "vercel": {
+          "type": "string",
+          "maxLength": 280,
+          "pattern": "^vc-domain-verify=[a-z0-9-]+\\.got-a\\.page,[A-Za-z0-9_-]{1,200}$"
+        }
+      }
+    },
     "page": {
       "type": "object",
       "additionalProperties": false,
@@ -123,7 +138,7 @@
     },
     {
       "if": { "properties": { "mode": { "const": "instant" } } },
-      "then": { "required": ["page"], "not": { "required": ["records"] } }
+      "then": { "required": ["page"], "not": { "anyOf": [{ "required": ["records"] }, { "required": ["verification"] }] } }
     }
   ]
 }

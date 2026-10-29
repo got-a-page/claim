@@ -49,6 +49,8 @@ export interface PageClaim {
   purpose?: string;
   showcase?: boolean;
   records?: DnsRecords;
+  /** Exact Vercel TXT value for this claim only; destination is fixed by the sync. */
+  verification?: { vercel: string };
   page?: InstantPage;
 }
 

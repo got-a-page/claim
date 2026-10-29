@@ -35,15 +35,60 @@ nameservers. The claim repo publishes the supported records for you.
 
 ### Vercel
 
-1. Open your project, then **Settings > Domains > Add Domain**. Add
-   `yourname.got-a.page` to that project.
+1. Open your project, then **Settings > Domains > Add Domain**. Add only
+   `yourname.got-a.page` to that project, not `got-a.page`, a wildcard, or an
+   unclaimed `www` hostname. Decline a redirect to `www.yourname.got-a.page`
+   unless that hostname is separately supported and approved.
 2. Copy the **CNAME target recommended for this domain** into your claim's
    `records.CNAME`. Vercel uses project-specific targets, so do not copy a
-   generic target or another project's value.
-3. After merge and DNS sync, check the domain's configuration and certificate
-   status in Vercel. No `CNAME` file is needed in your source repository.
+   generic target, an example IP, or another project's value.
+3. If Vercel asks for ownership verification, copy the exact **name, type and
+   value** from that domain's warning into the PR for maintainer review. For
+   subdomain delegation, Vercel currently requests TXT at the shared apex
+   label `_vercel.got-a.page`, not at the routing CNAME hostname.
+4. For that exact TXT name only, add the optional `verification.vercel` field
+   to **your existing claim file**. Paste the complete value Vercel gave for
+   your claimed hostname. The following is illustrative, not a usable token:
 
-[Vercel instructions](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
+   ```json
+   {
+     "mode": "point",
+     "owner": { "github": "your-github-name" },
+     "records": { "CNAME": "your-project-target.vercel-dns-017.com" },
+     "verification": {
+       "vercel": "vc-domain-verify=yourname.got-a.page,REPLACE_WITH_EXACT_TOKEN"
+     }
+   }
+   ```
+
+   Do not create `_vercel.json` or `_vercel.yourname.json`. Claim filenames
+   still accept only normal single-label names. Do not put this TXT alongside
+   `records.CNAME`: CNAME cannot coexist with TXT at the same name. If Vercel
+   shows any other record name or value format, stop and ask a maintainer.
+5. A maintainer must review that the value authorizes **only your claimed
+   hostname**, using the exact Domains warning. Apex/wildcard ownership and
+   values for other claimants are rejected. Verification changes receive
+   `needs-review`; automated checks do not replace that review. Tokens are
+   public DNS proof values, not account credentials. Never post a password,
+   API key, login code, or account access token.
+6. After the approved claim merges and DNS sync succeeds, return to Vercel's
+   Domains page. Recheck verification, configuration and certificate status,
+   then visit `https://yourname.got-a.page` and confirm your site loads with
+   valid HTTPS. Pending DNS or `DEPLOYMENT_NOT_FOUND` before publication does
+   not by itself prove that project setup is missing. DNS must propagate
+   before verification can finish. No source-repository `CNAME` file is needed.
+
+Verification records are bound to the claim. Each claim may have one current
+Vercel verification value, and each value uses one record from the DNS budget.
+Different claims can publish separate values at the shared `_vercel` label.
+Removing verification, deleting the claim, or leaving point mode removes only
+that claim's tagged value on the next DNS sync. Removing and re-adding a domain
+in Vercel generates a new value: update your claim through a PR. Sync does not
+adopt or delete manual/legacy TXT values at the shared label; maintainers must
+review those separately. Do not change nameservers or request apex ownership.
+
+[Vercel domain and delegation instructions](https://vercel.com/docs/domains/working-with-domains/add-a-domain)
+and [verification and propagation](https://vercel.com/kb/guide/why-is-my-vercel-domain-unverified)
 
 ### Netlify
 
@@ -98,7 +143,8 @@ generator's URL/base-path setting.
 If a host asks for an extra verification record, copy the exact record name,
 type and value into an issue for maintainers to review. Do not add it at the
 wrong name or combine a CNAME with TXT on the same hostname. The current claim
-format does not support arbitrary verification-record names. Never post
+format supports only the claim-bound Vercel field above, not arbitrary
+verification-record names. Never post
 passwords, API keys or login codes.
 
 Before removing your custom domain or deleting your hosted site, remove the
