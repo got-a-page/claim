@@ -65,6 +65,7 @@ for (const change of changes) {
     if (before && !sameUser(before.owner.github, author) && !isMaintainer) {
       report.errors.push(`Only @${before.owner.github} (or a maintainer) can remove ${name}.got-a.page.`);
     }
+    if (before?.verification) labels.add("needs-review");
     report.summary = `${name}.got-a.page would be released.`;
     reports.push(report);
     continue;
@@ -86,6 +87,7 @@ for (const change of changes) {
   }
 
   const claim = parsed as import("./lib/types.js").PageClaim;
+  if (claim.verification || basePages.get(name)?.verification) labels.add("needs-review");
   labels.add(claim.mode);
   modes.add(claim.mode);
 
