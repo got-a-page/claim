@@ -11,12 +11,9 @@
  */
 
 import { loadRepo } from "./lib/store.js";
-import { budgetProblems, recordCount } from "./lib/claims.js";
-import type { DnsProvider, DnsRecord, RecordType } from "./dns/provider.js";
+import type { DnsProvider } from "./dns/provider.js";
 import { CloudflareProvider } from "./dns/cloudflare.js";
-
-const ZONE = "got-a.page";
-const TTL = 300;
+import { desiredRecords, diff, ZONE } from "./dns/plan.js";
 
 function arg(flag: string, fallback = ""): string {
   const i = process.argv.indexOf(flag);
@@ -24,69 +21,6 @@ function arg(flag: string, fallback = ""): string {
 }
 const apply = process.argv.includes("--apply");
 const repo = arg("--repo", ".");
-
-/** The exact record set the repo asks for, one row per DNS record. */
-function desiredRecords(): Omit<DnsRecord, "id">[] {
-  const data = loadRepo(repo);
-  const pointPages = data.pages.filter((p) => p.claim.mode === "point");
-  const over = budgetProblems(data.pages, data.limits);
-  if (over.length > 0) {
-    console.error(over.join("\n"));
-    process.exit(1);
-  }
-  const desired: Omit<DnsRecord, "id">[] = [];
-  for (const { name, claim } of pointPages) {
-    const fqdn = `${name}.${ZONE}`;
-    const r = claim.records!;
-    if (r.CNAME) desired.push({ name: fqdn, type: "CNAME", content: r.CNAME, ttl: TTL, managed: true });
-    for (const ip of r.A ?? []) desired.push({ name: fqdn, type: "A", content: ip, ttl: TTL, managed: true });
-    for (const ip of r.AAAA ?? []) desired.push({ name: fqdn, type: "AAAA", content: ip, ttl: TTL, managed: true });
-    for (const txt of r.TXT ?? []) desired.push({ name: fqdn, type: "TXT", content: txt, ttl: TTL, managed: true });
-  }
-  return desired;
-}
-
-interface Plan {
-  create: Omit<DnsRecord, "id">[];
-  update: DnsRecord[];
-  remove: DnsRecord[];
-}
-
-function diff(desired: Omit<DnsRecord, "id">[], live: DnsRecord[]): Plan {
-  const key = (r: { name: string; type: string }) => `${r.name}|${r.type}`;
-  const liveByKey = new Map<string, DnsRecord[]>();
-  for (const r of live) {
-    const list = liveByKey.get(key(r)) ?? [];
-    list.push(r);
-    liveByKey.set(key(r), list);
-  }
-
-  const plan: Plan = { create: [], update: [], remove: [] };
-  const matched = new Set<string>();
-
-  for (const want of desired) {
-    const candidates = (liveByKey.get(key(want)) ?? []).filter((r) => !matched.has(r.id));
-    const exact = candidates.find((r) => r.content === want.content && r.managed);
-    if (exact) {
-      matched.add(exact.id);
-      continue;
-    }
-    const reusable = candidates.find((r) => r.managed);
-    if (reusable) {
-      matched.add(reusable.id);
-      plan.update.push({ ...reusable, content: want.content, ttl: want.ttl });
-    } else {
-      plan.create.push(want);
-    }
-  }
-
-  // Anything managed that the repo no longer asks for gets removed.
-  // Untagged records are someone else's - hands off.
-  for (const r of live) {
-    if (r.managed && !matched.has(r.id)) plan.remove.push(r);
-  }
-  return plan;
-}
 
 const providerName = arg("--provider", "cloudflare");
 let provider: DnsProvider;
@@ -97,7 +31,7 @@ if (providerName === "cloudflare") {
   process.exit(1);
 }
 
-const desired = desiredRecords();
+const desired = desiredRecords(loadRepo(repo));
 const live = await provider.listRecords(ZONE);
 const plan = diff(desired, live);
 
