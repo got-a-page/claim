@@ -66,3 +66,35 @@ test("routing multivalue rotation reserves exact matches before reusing rows", (
   const plan = diff([record("", "new"), record("", "keep")], [record("k", "keep"), record("o", "old")]);
   assert.deepEqual(plan.update.map(r => [r.id, r.content]), [["o", "new"]]);
 });
+
+test("claim validation enforces existing owner for verification edits and deletion", async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { execFileSync, spawnSync } = await import("node:child_process");
+  const repo = mkdtempSync(join(tmpdir(), "claim-verification-"));
+  const root = new URL("../../", import.meta.url).pathname;
+  try {
+    mkdirSync(join(repo, "pages")); mkdirSync(join(repo, "schema"));
+    writeFileSync(join(repo, "schema/page.schema.json"), JSON.stringify(schema));
+    writeFileSync(join(repo, "config.json"), JSON.stringify(limits));
+    writeFileSync(join(repo, "reserved.json"), JSON.stringify(data().reserved));
+    writeFileSync(join(repo, "pages/alice.json"), JSON.stringify(claim("alice")));
+    const git = (...args: string[]) => execFileSync("git", args, {cwd: repo, stdio: "pipe"});
+    git("init"); git("config", "user.email", "test@example.invalid"); git("config", "user.name", "Test");
+    git("add", "."); git("commit", "-m", "base"); git("branch", "base");
+    const changed = claim("alice"); changed.verification!.vercel = value("alice", "rotated");
+    writeFileSync(join(repo, "pages/alice.json"), JSON.stringify(changed));
+    git("add", "."); git("commit", "-m", "rotate");
+    const validate = (author: string) => {
+      const run = spawnSync(process.execPath, [join(root, "node_modules/tsx/dist/cli.mjs"), join(root, "scripts/src/validate.ts"), "--repo", repo, "--base", "base", "--author", author], {encoding: "utf8"});
+      const report = JSON.parse(readFileSync(join(repo, "validation-report.json"), "utf8"));
+      return {status: run.status, report};
+    };
+    assert.equal(validate("intruder").status, 1);
+    const own = validate("octocat"); assert.equal(own.status, 0); assert.ok(own.report.labels.includes("needs-review"));
+    rmSync(join(repo, "pages/alice.json")); git("add", "pages"); git("commit", "-m", "remove");
+    assert.equal(validate("intruder").status, 1);
+    assert.equal(validate("octocat").status, 0);
+  } finally { rmSync(repo, {recursive: true, force: true}); }
+});
