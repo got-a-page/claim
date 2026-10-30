@@ -1,0 +1,11 @@
+{
+  "mode": "point",
+  "owner": {
+    "github": "MKishoreDev"
+  },
+  "purpose": "A student-led ecosystem connecting students across India to hackathons, internships, and workshops.",
+  "showcase": true,
+  "records": {
+    "CNAME": "cname.vercel-dns.com"
+  }
+}
