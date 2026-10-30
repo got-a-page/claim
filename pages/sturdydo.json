@@ -6,6 +6,9 @@
   "purpose": "A student-led ecosystem connecting students across India to hackathons, internships, and workshops.",
   "showcase": true,
   "records": {
-    "CNAME": "cname.vercel-dns.com"
+    "CNAME": "b2f31ec7c7a115c2.vercel-dns-017.com"
+  },
+  "verification": {
+    "vercel": "vc-domain-verify=sturdydo.got-a.page,334af5901ab0f1aee29f"
   }
 }
