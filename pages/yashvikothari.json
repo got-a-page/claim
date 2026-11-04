@@ -1,0 +1,19 @@
+{
+  "mode": "instant",
+  "owner": {
+    "github": "yashvikothari"
+  },
+  "page": {
+    "type": "person",
+    "title": "Yashvi Kothari",
+    "theme": "plum",
+    "tagline": "Cloud Infrastructure and Security Engineer",
+    "sections": [
+      {
+        "heading": "About",
+        "text": "Yashvi Kothari | AWS Community Builder | Cloud Infra & Security"
+      }
+    ]
+  },
+  "showcase": true
+}
