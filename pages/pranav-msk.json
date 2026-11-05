@@ -1,0 +1,29 @@
+{
+  "mode": "instant",
+  "owner": {
+    "github": "Pranav-MSK"
+  },
+  "page": {
+    "type": "person",
+    "title": "Pranav M S Krishnan",
+    "theme": "sunrise",
+    "tagline": "Data Analytics & Engineering",
+    "links": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/Pranav-MSK"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://linkedin.com/in/pranav-msk"
+      }
+    ],
+    "sections": [
+      {
+        "heading": "About",
+        "text": "Passionate about data engineering, analytics pipelines, and building clean web apps. Currently building my custom portfolio website and data projects!"
+      }
+    ]
+  },
+  "showcase": true
+}
