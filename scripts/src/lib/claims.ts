@@ -5,7 +5,7 @@
  */
 
 import { isPrivateIpv4, isPrivateIpv6, isValidIpv4, isValidIpv6 } from "./ips.js";
-import { nameProblems } from "./names.js";
+import { nameIssues } from "./names.js";
 import type { ClaimedPage, Limits, PageClaim } from "./types.js";
 
 export interface RuleResult {
@@ -21,8 +21,8 @@ export function checkClaim(name: string, claim: PageClaim, limits: Limits): Rule
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  for (const problem of nameProblems(name)) {
-    errors.push(`The name "${name}" ${problem}.`);
+  for (const issue of nameIssues(name)) {
+    errors.push(`The name "${name}" ${issue.problem}.` + (issue.suggestion ? ` ${issue.suggestion}.` : ""));
   }
 
   if (claim.mode === "point") {

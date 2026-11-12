@@ -2,7 +2,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { nameProblems } from "../src/lib/names.js";
+import { nameIssues, nameProblems } from "../src/lib/names.js";
 import { reservedReason } from "../src/lib/reserved.js";
 import { budgetProblems, checkClaim, limitProblems, recordCount } from "../src/lib/claims.js";
 import { isPrivateIpv4 } from "../src/lib/ips.js";
@@ -44,6 +44,38 @@ test("names: too short, too long, bad characters, edge hyphens", () => {
   assert.ok(nameProblems("-lead").length > 0);
   assert.ok(nameProblems("trail-").length > 0);
   assert.ok(nameProblems("has space").length > 0);
+});
+
+test("names: problems come with a concrete suggestion", () => {
+  // too long: the suggestion drops a trailing word and is itself a valid name
+  const tooLong = nameIssues("my-very-long-page-name-that-keeps-going-on");
+  assert.equal(tooLong.length, 1);
+  assert.match(tooLong[0].suggestion ?? "", /Try dropping a word, like "my-very-long-page-name-that-keeps-going"/);
+  assert.deepEqual(nameProblems("my-very-long-page-name-that-keeps-going"), []);
+
+  // a single over-long word is truncated to the limit
+  const oneWord = nameIssues("x".repeat(41));
+  assert.match(oneWord[0].suggestion ?? "", new RegExp(`"${"x".repeat(40)}"`));
+
+  // bad characters: the suggestion is the sanitized name
+  assert.equal(nameIssues("UPPER")[0].suggestion, 'Try "upper"');
+  assert.equal(nameIssues("under_score")[0].suggestion, 'Try "under-score"');
+  assert.equal(nameIssues("has space")[0].suggestion, 'Try "has-space"');
+
+  // edge hyphens: the suggestion is the trimmed name
+  assert.equal(nameIssues("-lead")[0].suggestion, 'Try "lead"');
+  assert.equal(nameIssues("trail-")[0].suggestion, 'Try "trail"');
+
+  // too short: the suggestion states the minimum
+  assert.match(nameIssues("a")[0].suggestion ?? "", /at least 2 characters/);
+
+  // and the suggestion reaches the error text produced for the PR comment
+  const result = checkClaim(
+    "my-very-long-page-name-that-keeps-going-on",
+    { mode: "point", owner: { github: "octocat" }, records: { CNAME: "octocat.github.io" } },
+    limits
+  );
+  assert.match(result.errors[0], /must be 2-40 characters \(got 42\)\. Try dropping a word/);
 });
 
 test("reserved: infrastructure, brands and blocked words", () => {
