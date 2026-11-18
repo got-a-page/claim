@@ -11,6 +11,7 @@ Changing the project itself instead (scripts, validation, CI, docs)? Add
 - Page file: `pages/____.json`
 - I confirm the GitHub account opening this PR is the `owner.github` in my file.
 - I understand everything in this repo is public.
+- Please star the repo to support got-a.page.
 
 <!--
 Validation checks review your file within a minute and report back on this
