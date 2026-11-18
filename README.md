@@ -25,11 +25,15 @@ at it. If you don't, we'll build a lovely page for you on the spot.
 5. A maintainer merges. Instant pages go live within minutes. Point-mode
    pages need DNS sync **and** your host's custom-domain setup and HTTPS
    certificate before they work.
+6. **Optional: star the repo** if you find it useful. It's never required -
+   claims are reviewed on their own merits, starred or not.
 
 Never made a pull request? This repo is a kind place for your first one - the
 [step-by-step guide](CONTRIBUTING.md) walks you through every click.
 
+<!-- Previous standalone star line, now covered by the optional step in the claim list:
 Please consider leaving a star ⭐️ to help support us!
+-->
 
 ## Two ways to get a page
 
@@ -150,3 +154,4 @@ moving providers later is an adapter, not a rewrite.
 ## License
 
 MIT - see [LICENSE](LICENSE).
+
