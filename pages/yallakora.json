@@ -1,0 +1,10 @@
+{
+    "records":  {
+                    "CNAME":  "yallakora-edge.pages.dev"
+                },
+    "purpose":  "Arabic RTL sports portal with live ESPN scores, news and legal video sources",
+    "owner":  {
+                  "github":  "o16485972-lab"
+              },
+    "mode":  "point"
+}
