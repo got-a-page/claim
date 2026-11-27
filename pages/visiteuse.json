@@ -1,0 +1,17 @@
+{
+  "mode": "instant",
+  "owner": {
+    "github": "visiteuse"
+  },
+  "page": {
+    "type": "person",
+    "title": "visiteuse",
+    "theme": "sunrise",
+    "links": [
+      {
+        "label": "GunLol",
+        "url": "https://guns.lol/visiteuse"
+      }
+    ]
+  }
+}   
