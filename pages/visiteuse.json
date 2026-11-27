@@ -7,16 +7,11 @@
     "type": "person",
     "title": "visiteuse",
     "theme": "sunrise",
-    "tagline": "just a page",
     "links": [
       {
         "label": "GunLol",
         "url": "https://guns.lol/visiteuse"
       }
     ]
-  },
-  "showcase": true,
-  "records": {
-    "TXT": "dh=5322aea4f34a503ce8b1cb13f0b6676991da0fad"
   }
 }   
